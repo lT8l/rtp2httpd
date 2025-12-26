@@ -338,7 +338,7 @@ function PlayerPage() {
 
   // Main UI content
   const mainContent = (
-    <div ref={pageContainerRef} className="flex h-dvh flex-col bg-background">
+    <div ref={pageContainerRef} className="relative flex h-dvh flex-col bg-background">
       <title>{t("title")}</title>
 
       {/* Main Content */}
@@ -364,68 +364,74 @@ function PlayerPage() {
           />
         </div>
 
-        {/* Sidebar - Mobile: always visible (below video, hidden in fullscreen), Desktop: toggle-able side panel (visible in fullscreen) */}
-        <div
-          className={cn(
-            "flex flex-col w-full md:w-80 md:border-l border-t md:border-t-0 border-border bg-card flex-1 md:flex-initial overflow-hidden",
-            (showSidebar || isMobile) && !(isFullscreen && isMobile) ? "" : "hidden",
-          )}
-        >
-          {/* Sidebar Tabs */}
-          <div className="flex items-center border-b border-border shrink-0">
-            <button
-              onClick={() => {
-                channelListNextScrollBehaviorRef.current = "instant";
-                setSidebarView("channels");
-              }}
-              className={cn(
-                "flex-1 px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium",
-                sidebarView === "channels"
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-muted-foreground cursor-pointer hover:text-foreground",
-              )}
-            >
-              {t("channels")} ({metadata?.channels.length || 0})
-            </button>
-            <button
-              onClick={() => {
-                epgViewNextScrollBehaviorRef.current = "instant";
-                setSidebarView("epg");
-              }}
-              className={cn(
-                "flex-1 px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium",
-                sidebarView === "epg"
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-muted-foreground cursor-pointer hover:text-foreground",
-              )}
-            >
-              {t("programGuide")}
-            </button>
-          </div>
+        {/* Keep an empty flex child so layout stays consistent on mobile; desktop overlay is outside below */}
+        <div className="w-full md:w-0 md:flex-none" />
+      </div>
 
-          {/* Sidebar Content */}
-          <div className="flex-1 overflow-hidden">
-            <Activity mode={sidebarView === "channels" ? "visible" : "hidden"}>
-              <ChannelList
-                channels={metadata?.channels}
-                groups={metadata?.groups}
-                currentChannel={currentChannel}
-                onChannelSelect={selectChannel}
-                locale={locale}
-                settingsSlot={settingsSlot}
-              />
-            </Activity>
-            <Activity mode={sidebarView === "epg" ? "visible" : "hidden"}>
-              <EPGView
-                channelId={currentChannel ? getEPGChannelId(currentChannel, epgData) : null}
-                epgData={epgData}
-                onProgramSelect={handleVideoSeek}
-                locale={locale}
-                supportsCatchup={!!(currentChannel?.catchup && currentChannel?.catchupSource)}
-                currentPlayingProgram={currentVideoProgram}
-              />
-            </Activity>
-          </div>
+      {/* SIDEBAR OVERLAY: sibling of the flex row, absolutely positioned inside the page container */}
+      <div
+        className={cn(
+          // mobile: full width and normal flow (use original behavior)
+          // desktop: absolute overlay on the right, fixed width (md:w-80)
+          "flex flex-col w-full md:flex-initial md:absolute md:top-0 md:right-0 md:h-full md:w-80 md:border-l border-t md:border-t-0 border-border bg-card overflow-hidden md:z-40 md:shadow-lg md:backdrop-blur-sm",
+          // Show logic: same as before
+          (showSidebar || isMobile) && !(isFullscreen && isMobile) ? "" : "hidden",
+        )}
+      >
+        {/* Sidebar Tabs */}
+        <div className="flex items-center border-b border-border shrink-0">
+          <button
+            onClick={() => {
+              channelListNextScrollBehaviorRef.current = "instant";
+              setSidebarView("channels");
+            }}
+            className={cn(
+              "flex-1 px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium",
+              sidebarView === "channels"
+                ? "border-b-2 border-primary text-primary"
+                : "text-muted-foreground cursor-pointer hover:text-foreground",
+            )}
+          >
+            {t("channels")} ({metadata?.channels.length || 0})
+          </button>
+          <button
+            onClick={() => {
+              epgViewNextScrollBehaviorRef.current = "instant";
+              setSidebarView("epg");
+            }}
+            className={cn(
+              "flex-1 px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium",
+              sidebarView === "epg"
+                ? "border-b-2 border-primary text-primary"
+                : "text-muted-foreground cursor-pointer hover:text-foreground",
+            )}
+          >
+            {t("programGuide")}
+          </button>
+        </div>
+
+        {/* Sidebar Content */}
+        <div className="flex-1 overflow-hidden">
+          <Activity mode={sidebarView === "channels" ? "visible" : "hidden"}>
+            <ChannelList
+              channels={metadata?.channels}
+              groups={metadata?.groups}
+              currentChannel={currentChannel}
+              onChannelSelect={selectChannel}
+              locale={locale}
+              settingsSlot={settingsSlot}
+            />
+          </Activity>
+          <Activity mode={sidebarView === "epg" ? "visible" : "hidden"}>
+            <EPGView
+              channelId={currentChannel ? getEPGChannelId(currentChannel, epgData) : null}
+              epgData={epgData}
+              onProgramSelect={handleVideoSeek}
+              locale={locale}
+              supportsCatchup={!!(currentChannel?.catchup && currentChannel?.catchupSource)}
+              currentPlayingProgram={currentVideoProgram}
+            />
+          </Activity>
         </div>
       </div>
     </div>
