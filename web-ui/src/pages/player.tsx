@@ -338,7 +338,7 @@ function PlayerPage() {
 
   // Main UI content
   const mainContent = (
-    <div ref={pageContainerRef} className="flex h-dvh flex-col bg-background">
+    <div ref={pageContainerRef} className="relative flex h-dvh flex-col bg-background">
       <title>{t("title")}</title>
 
       {/* Main Content */}
@@ -367,7 +367,7 @@ function PlayerPage() {
         {/* Sidebar - Mobile: always visible (below video, hidden in fullscreen), Desktop: toggle-able side panel (visible in fullscreen) */}
         <div
           className={cn(
-            "flex flex-col w-full md:w-80 md:border-l border-t md:border-t-0 border-border bg-card flex-1 md:flex-initial overflow-hidden",
+            "flex flex-col w-full md:flex-initial md:absolute md:top-0 md:right-0 md:h-full md:w-80 md:border-l border-t md:border-t-0 border-border bg-card overflow-hidden md:z-40 md:shadow-lg md:backdrop-blur-sm",
             (showSidebar || isMobile) && !(isFullscreen && isMobile) ? "" : "hidden",
           )}
         >
